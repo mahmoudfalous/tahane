@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --color-gold: #D4AF37;
+  --color-dark-gold: #AA8C2C;
+  --color-islamic-green: #004B23;
+  --color-dark-bg: #0B0E14;
+  --color-card-bg: #151A22;
+}
+
+:root {
+  --background: #0B0E14;
+  --foreground: #E8E9EB;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, "Tahoma", sans-serif;
+}

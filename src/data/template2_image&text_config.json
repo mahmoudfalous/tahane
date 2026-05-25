@@ -1,0 +1,24 @@
+{
+  "template": "template2_image&text.png",
+  "placeholders": [
+    {
+      "type": "rectangle",
+      "label": "name",
+      "x": 407,
+      "y": 575,
+      "width": 585,
+      "height": 71,
+      "confidence": 0.95
+    },
+    {
+      "type": "circle",
+      "label": "image",
+      "x": 400,
+      "y": 156,
+      "width": 253,
+      "height": 253,
+      "radius": 126,
+      "confidence": 0.95
+    }
+  ]
+}

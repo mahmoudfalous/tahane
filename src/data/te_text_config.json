@@ -1,0 +1,14 @@
+{
+  "template": "te_text.png",
+  "placeholders": [
+    {
+      "type": "rectangle",
+      "label": "name",
+      "x": 324,
+      "y": 457,
+      "width": 474,
+      "height": 50,
+      "confidence": 0.95
+    }
+  ]
+}
