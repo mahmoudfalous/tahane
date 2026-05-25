@@ -193,6 +193,12 @@ export default function BuilderEditor() {
           <option value="/templates/template5_text.png">template5_text.png</option>
           <option value="/templates/template6_image&text.png">template6_image&text.png</option>
           <option value="/templates/template6_text.png">template6_text.png</option>
+          <option value="/templates/template8_image&text.png">template8_image&text.png</option>
+          <option value="/templates/template8_text.png">template8_text.png</option>
+          <option value="/templates/template9_image&text.png">template9_image&text.png</option>
+          <option value="/templates/template9_text.png">template9_text.png</option>
+          <option value="/templates/template10_image&text.png">template10_image&text.png</option>
+          <option value="/templates/template10_text.png">template10_text.png</option>
         </select>
 
         <button 
