@@ -6,11 +6,14 @@ import html2canvas from 'html2canvas';
 import type { Template } from '@/types';
 
 interface DownloadButtonProps {
-  targetRef: React.RefObject<HTMLDivElement | null>;
+  targetRef?: React.RefObject<HTMLDivElement | null>;
   fileName?: string;
   template?: Template;
   name?: string;
   imagePreviewUrl?: string | null;
+  label?: string;
+  loadingLabel?: string;
+  disabled?: boolean;
 }
 
 function loadImage(src: string) {
@@ -113,16 +116,20 @@ export default function DownloadButton({
   template,
   name = '',
   imagePreviewUrl = null,
+  label = 'تحميل البطاقة',
+  loadingLabel = 'جار تجهيز الصورة...',
+  disabled = false,
 }: DownloadButtonProps) {
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownload = async () => {
-    if (!targetRef.current) return;
+    if (disabled || isDownloading) return;
+    if (!template && !targetRef?.current) return;
     try {
       setIsDownloading(true);
       const canvas = template
         ? await renderTemplateToCanvas(template, name, imagePreviewUrl)
-        : await html2canvas(targetRef.current, {
+        : await html2canvas(targetRef!.current!, {
             scale: 2,
             useCORS: true,
             backgroundColor: '#151A22',
@@ -143,11 +150,11 @@ export default function DownloadButton({
   return (
     <button
       onClick={handleDownload}
-      disabled={isDownloading}
-      className="w-full flex items-center justify-center gap-2 bg-[#D4AF37] hover:bg-[#AA8C2C] text-black font-semibold py-3 px-6 rounded-xl transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+      disabled={isDownloading || disabled}
+      className="w-full flex items-center justify-center gap-2 bg-gold hover:bg-dark-gold text-black font-semibold py-3 px-6 rounded-xl transition-all disabled:opacity-70 disabled:cursor-not-allowed"
     >
       {isDownloading ? <LoadingSpinner className="text-black" /> : <Download className="w-5 h-5" />}
-      <span>{isDownloading ? 'جار تجهيز الصورة...' : 'تحميل البطاقة'}</span>
+      <span>{isDownloading ? loadingLabel : label}</span>
     </button>
   );
 }

@@ -1,10 +1,52 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import Script from 'next/script';
+import type Konva from 'konva';
 import { Stage, Layer, Image as KonvaImage, Rect, Circle, Transformer } from 'react-konva';
 import useImage from 'use-image';
 
 type ShapeType = 'circle' | 'rectangle';
+
+type DragEndEvent = {
+  target: {
+    id: () => string;
+    x: () => number;
+    y: () => number;
+  };
+};
+
+type CvMat = {
+  cols: number;
+  data32F: Float32Array;
+  delete: () => void;
+};
+
+type CvContours = {
+  size: () => number;
+  get: (index: number) => CvMat;
+  delete: () => void;
+};
+
+type OpenCv = {
+  Mat: new () => CvMat;
+  MatVector: new () => CvContours;
+  Size: new (width: number, height: number) => unknown;
+  COLOR_RGBA2GRAY: number;
+  BORDER_DEFAULT: number;
+  HOUGH_GRADIENT: number;
+  RETR_EXTERNAL: number;
+  CHAIN_APPROX_SIMPLE: number;
+  imread: (canvas: HTMLCanvasElement) => CvMat;
+  cvtColor: (src: CvMat, dst: CvMat, code: number, dstCn: number) => void;
+  GaussianBlur: (src: CvMat, dst: CvMat, ksize: unknown, sigmaX: number, sigmaY: number, borderType: number) => void;
+  HoughCircles: (...args: unknown[]) => void;
+  Canny: (...args: unknown[]) => void;
+  findContours: (...args: unknown[]) => void;
+  approxPolyDP: (...args: unknown[]) => void;
+  arcLength: (...args: unknown[]) => number;
+  boundingRect: (...args: unknown[]) => { x: number; y: number; width: number; height: number };
+  contourArea: (...args: unknown[]) => number;
+};
 
 interface Placeholder {
   id: string;
@@ -24,8 +66,8 @@ export default function BuilderEditor() {
   const [placeholders, setPlaceholders] = useState<Placeholder[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const stageRef = useRef<any>(null);
-  const trRef = useRef<any>(null);
+  const stageRef = useRef<Konva.Stage | null>(null);
+  const trRef = useRef<Konva.Transformer | null>(null);
   const hiddenCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -33,18 +75,21 @@ export default function BuilderEditor() {
       const node = stageRef.current.findOne(`#${selectedId}`);
       if (node) {
         trRef.current.nodes([node]);
-        trRef.current.getLayer().batchDraw();
+        const layer = trRef.current.getLayer();
+        layer?.batchDraw();
       }
     } else if (trRef.current) {
       trRef.current.nodes([]);
-      trRef.current.getLayer().batchDraw();
+      const layer = trRef.current.getLayer();
+      layer?.batchDraw();
     }
   }, [selectedId]);
 
   const detectShapes = () => {
     if (!cvReady || !image || !hiddenCanvasRef.current) return;
-    const cv = (window as any).cv;
-    
+    const cv = (window as Window & { cv?: OpenCv }).cv;
+    if (!cv) return;
+
     const canvas = hiddenCanvasRef.current;
     canvas.width = image.width;
     canvas.height = image.height;
@@ -70,10 +115,10 @@ export default function BuilderEditor() {
 
     if (circles.cols > 0) {
       for (let i = 0; i < circles.cols; ++i) {
-        let x = circles.data32F[i * 3];
-        let y = circles.data32F[i * 3 + 1];
-        let radius = circles.data32F[i * 3 + 2];
-        
+        const x = circles.data32F[i * 3];
+        const y = circles.data32F[i * 3 + 1];
+        const radius = circles.data32F[i * 3 + 2];
+
         newPlaceholders.push({
           id: `circle-${i}`,
           type: 'circle',
@@ -125,7 +170,7 @@ export default function BuilderEditor() {
     edges.delete(); contours.delete(); hierarchy.delete();
   };
 
-  const handleDragEnd = (e: any) => {
+  const handleDragEnd = (e: DragEndEvent) => {
     const id = e.target.id();
     const x = e.target.x();
     const y = e.target.y();
@@ -162,7 +207,8 @@ export default function BuilderEditor() {
         strategy="lazyOnload"
         onLoad={() => {
           const checkCv = setInterval(() => {
-            if ((window as any).cv && (window as any).cv.Mat) {
+              const cv = (window as Window & { cv?: OpenCv }).cv;
+              if (cv && cv.Mat) {
               setCvReady(true);
               clearInterval(checkCv);
             }
@@ -251,7 +297,7 @@ export default function BuilderEditor() {
         )}
       </div>
 
-      <div className="bg-[#151A22] border border-gray-800 rounded-lg overflow-auto flex justify-start p-8 min-h-[600px]">
+      <div className="bg-card-bg border border-gray-800 rounded-lg overflow-auto flex justify-start p-8 min-h-150">
         <canvas ref={hiddenCanvasRef} style={{ display: 'none' }} />
         
         {image ? (
