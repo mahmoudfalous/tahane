@@ -92,8 +92,6 @@ tahane/
 │   ├── data/                      # Templates listing logic and JSON layout configurations
 │   │   ├── templates.ts           # Scan and parse template images and configurations
 │   │   └── *__config.json          # Position mappings for each design template
-│   ├── services/                  # External services integration
-│   │   └── supabase.ts            # Supabase database client instance
 │   └── types/                     # Shared TypeScript interface definitions
 │       └── index.ts               # Core model definitions (Template, CardData, PositionConfig)
 ```
